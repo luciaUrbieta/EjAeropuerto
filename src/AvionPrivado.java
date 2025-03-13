@@ -47,7 +47,7 @@ public class AvionPrivado extends Avion implements ServicioPasajeros {
     }
 
     @Override
-    public JSONObject toJSON(){
+    public JSONObject toJson(){
         JSONObject avionPrivado = new JSONObject();
         try{
             avionPrivado.put("nombreModelo", getNombreModelo());

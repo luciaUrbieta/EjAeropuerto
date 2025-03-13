@@ -1,3 +1,4 @@
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,10 +22,10 @@ public class Aeropuerto {
         codigoInternacional=codigoInternacional++;
         this.direccion=direccion;
         this.capacidadOperacion=capacidadOperacion;
-        avionesComerciales=new Hangar<>();
-        avionesPrivados=new Hangar<>();
-        avionesDeCarga=new Hangar<>();
-        avionesMilitares=new Hangar<>();
+        avionesComerciales=new Hangar<AvionComercial>();
+        avionesPrivados=new Hangar<AvionPrivado>();
+        avionesDeCarga=new Hangar<AvionDeCarga>();
+        avionesMilitares=new Hangar<AvionMilitar>();
     }
 
     public String getNombre() {
@@ -96,8 +97,9 @@ public class Aeropuerto {
         }
     }
 
-    //manejar excepcion sin hacer un sout
-    public void eliminarAvion(Avion avion){
+    //manejar posible error con excepciones
+    public String  eliminarAvion(Avion avion){
+        String retorno="El avion fue eliminado con exito";
         if (avion instanceof AvionComercial) {
             avionesComerciales.eliminarAvion((AvionComercial) avion);
         } else if (avion instanceof AvionPrivado) {
@@ -110,6 +112,7 @@ public class Aeropuerto {
             System.out.println("No se encuentra el avión.");
         }
         avionesInstanciados=avionesInstanciados--;
+        return retorno;
     }
 
     public String despegarHangarCompleto(String tipoAvion){
@@ -160,10 +163,37 @@ public class Aeropuerto {
         return retorno;
     }
 
-    /*  USO DEL CONDICIONAL TERNARIO PARA LOS HANGARES.
-    Primero se evalúa si avionesComerciales no es null. Si no es null, llama al metodo toJSON() del objeto avionesComerciales, que debería devolver un JSONObject con los datos
-    de ese hangar (y probablemente de los aviones que contiene). Si es null, se asigna null en lugar de un JSONObject, evitando posibles errores. */
+    public JSONObject toJson(){
+        JSONObject aeropuertoJson = new JSONObject();
 
+            aeropuertoJson.put("nombre", this.nombre);
+            aeropuertoJson.put("codigoInternacional", this.codigoInternacional);
+            aeropuertoJson.put("direccion", this.direccion);
+            aeropuertoJson.put("capacidadOperacion", this.capacidadOperacion);
+            aeropuertoJson.put("avionesComerciales", this.avionesComerciales.toJson());
+            aeropuertoJson.put("avionesDeCarga", avionesDeCarga.toJson());
+            aeropuertoJson.put("avionesMilitares", avionesMilitares.toJson());
+            aeropuertoJson.put("avionesPrivados", avionesPrivados.toJson());
+            aeropuertoJson.put("avionesInstanciados", this.avionesInstanciados);
+
+
+        return aeropuertoJson;
+    }
+
+    /*
+    public JSONArray hangaresToJson(){
+        JSONArray hangarArray = new JSONArray();
+        hangarArray.put(this.avionesComerciales.toJson());
+        hangarArray.put(this.avionesDeCarga.toJson());
+        hangarArray.put(this.avionesMilitares.toJson());
+        hangarArray.put(this.avionesPrivados.toJson());
+        return hangarArray;
+    }
+    */
+    /*  USO DEL CONDICIONAL TERNARIO PARA LOS HANGARES.
+    Primero se evalúa si avionesComerciales no es null. Si no es null, llama al metodo toJson() del objeto avionesComerciales, que debería devolver un JSONObject con los datos
+    de ese hangar (y de los aviones que contiene). Si es null, se asigna null en lugar de un JSONObject, evitando posibles errores. */
+    /*
     public JSONObject toJSON() {
         JSONObject aeropuerto = new JSONObject();
         try {
@@ -171,16 +201,17 @@ public class Aeropuerto {
             aeropuerto.put("codigoInternacional", this.codigoInternacional);
             aeropuerto.put("direccion", this.direccion);
             aeropuerto.put("capacidadOperacion", this.capacidadOperacion);
-            aeropuerto.put("avionesComerciales", this.avionesComerciales != null ? this.avionesComerciales.toJSON() : null);
-            aeropuerto.put("avionesPrivados", this.avionesPrivados != null ? this.avionesPrivados.toJSON() : null);
-            aeropuerto.put("avionesDeCarga", this.avionesDeCarga != null ? this.avionesDeCarga.toJSON() : null);
-            aeropuerto.put("avionesMilitares", this.avionesMilitares != null ? this.avionesMilitares.toJSON() : null);
+            aeropuerto.put("avionesComerciales", this.avionesComerciales != null ? this.avionesComerciales.to : null);
+            aeropuerto.put("avionesPrivados", this.avionesPrivados != null ? this.avionesPrivados.toJson() : null);
+            aeropuerto.put("avionesDeCarga", this.avionesDeCarga != null ? this.avionesDeCarga.toJson() : null);
+            aeropuerto.put("avionesMilitares", this.avionesMilitares != null ? this.avionesMilitares.toJson() : null);
             aeropuerto.put("avionesInstanciados", this.avionesInstanciados);
         } catch (JSONException e) {
             System.out.println(e.getMessage());
         }
         return aeropuerto;
     }
+    */
 
     public Hangar<AvionComercial> getAvionesComerciales() {
         return avionesComerciales;

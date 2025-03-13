@@ -1,3 +1,4 @@
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Main {
@@ -55,46 +56,133 @@ public class Main {
         aeropuertoMdp.agregarAvion(avionPrivado4);
         aeropuertoMdp.agregarAvion(avionPrivado5);
 
+        /*
         System.out.println(aeropuertoMdp.getAvionesComerciales().toString());
         System.out.println(aeropuertoMdp.getAvionesInstanciados());
 
         System.out.println(aeropuertoMdp.despegarHangarCompleto("avion de carga"));
-
-        JSONObject aeropuertoJson = aeropuertoMdp.toJSON();
+*/
+        JSONObject aeropuertoJson = aeropuertoMdp.toJson();
         ManejoJSON.escribirArchivo(aeropuertoJson, "aeropuertomdp");
-        System.out.println(ManejoJSON.leerArchivo("aeropuertomdp"));
+        //System.out.println(ManejoJSON.leerArchivo("aeropuertomdp"));
+        Aeropuerto aeropuertoLeido = fromJson("aeropuertoMdp");
 
-        // 1. leer archivo de manera mas ordenada
-
-        /*
-         ArrayList<Empleado> empleadosLeidos = new ArrayList<>();
-
-        try {
-            //creo un JSONArray con la respuesta que descargue del archivo
-            JSONArray jsonArrayEmpleados = new JSONArray(respuesta);
-
-            //recorro el JSONArray
-            for (int i = 0; i < jsonArrayEmpleados.length(); i++) {
-                //Creo un JSONObject con un elemento del JSONArray
-                JSONObject empleado =  jsonArrayEmpleados.getJSONObject(i);
-                //Obtengo los datos del JSONObject para crear un empleado
-                int id = empleado.getInt("id");
-                String nombre = empleado.getString("nombre");
-                double salario = empleado.getDouble("salario");
-                String departamento = empleado.getString("departamento");
-
-                //creo el empleado con los datos del JSONObject
-                Empleado leido = new Empleado(id, nombre, salario, departamento);
-                empleados.add(leido);
-                System.out.println("leido del archivo: "+leido.toString());
-            }
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-         */
-
-        // 2. hacer el menu
-
+        System.out.println(aeropuertoLeido.toJson());
 
     }
+
+    public static Aeropuerto fromJson(String nombreArchivo) {
+
+        String contenido = ManejoJSON.leerArchivo(nombreArchivo);
+
+        JSONObject aeropuertoJson = new JSONObject(contenido);
+
+        String nombre = aeropuertoJson.getString("nombre");
+        String direccion = aeropuertoJson.getString("direccion");
+        int capacidadOperacion = aeropuertoJson.getInt("capacidadOperacion");
+
+        Aeropuerto aeropuertoLeido = new Aeropuerto(nombre, direccion, capacidadOperacion);
+
+        JSONArray hangarAvionesComerciales = aeropuertoJson.getJSONArray("avionesComerciales");
+        String nombreModelo;
+        String marca;
+        double capacidadCombustible;
+        String tipoMotorString;
+        int cantidadAsientos;
+        int cantidadAzafatas;
+        String listaServicios;
+
+        for (int i = 0; i < hangarAvionesComerciales.length(); i++) {
+
+            JSONObject avionComercialJson = hangarAvionesComerciales.getJSONObject(i);
+            nombreModelo = avionComercialJson.getString("nombreModelo");
+            marca = avionComercialJson.getString("marca");
+            capacidadCombustible = avionComercialJson.getDouble("capacidadCombustible");
+            tipoMotorString = avionComercialJson.getString("tipoMotor");
+            cantidadAsientos = avionComercialJson.getInt("cantidadAsientos");
+            cantidadAzafatas = avionComercialJson.getInt("cantidadAzafatas");
+            listaServicios = avionComercialJson.getString("listaServicios");
+
+            try {
+                aeropuertoLeido.agregarAvion(new AvionComercial(nombreModelo, marca, capacidadCombustible, TipoMotor.valueOf(tipoMotorString), cantidadAsientos, cantidadAzafatas, listaServicios));
+            } catch (LimiteDeAvionesSuperadoException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        JSONArray hangarAvionesDeCarga = aeropuertoJson.getJSONArray("avionesDeCarga");
+        double capacidadKg;
+        String listadoProductos;
+
+        for (int i = 0; i < hangarAvionesDeCarga.length(); i++) {
+            JSONObject avionDeCargaJson = hangarAvionesDeCarga.getJSONObject(i);
+            nombreModelo = avionDeCargaJson.getString("nombreModelo");
+            marca = avionDeCargaJson.getString("marca");
+            capacidadCombustible = avionDeCargaJson.getDouble("capacidadCombustible");
+            tipoMotorString = avionDeCargaJson.getString("tipoMotor");
+            cantidadAsientos = avionDeCargaJson.getInt("cantidadAsientos");
+            capacidadKg = avionDeCargaJson.getDouble("capacidadKg");
+            listadoProductos = avionDeCargaJson.getString("listadoProductos");
+
+            try {
+                aeropuertoLeido.agregarAvion(new AvionDeCarga(nombreModelo, marca, capacidadCombustible, TipoMotor.valueOf(tipoMotorString), cantidadAsientos, capacidadKg, listadoProductos));
+            } catch (LimiteDeAvionesSuperadoException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        JSONArray hangarAvionesMilitares = aeropuertoJson.getJSONArray("avionesMilitares");
+
+        String sistemaDeArmasString;
+        int cantidadBalas;
+
+        for (int i = 0; i < hangarAvionesMilitares.length(); i++) {
+            JSONObject avionMilitarJson = hangarAvionesMilitares.getJSONObject(i);
+            nombreModelo = avionMilitarJson.getString("nombreModelo");
+            marca = avionMilitarJson.getString("marca");
+            capacidadCombustible = avionMilitarJson.getDouble("capacidadCombustible");
+            tipoMotorString = avionMilitarJson.getString("tipoMotor");
+            cantidadAsientos = avionMilitarJson.getInt("cantidadAsientos");
+            sistemaDeArmasString = avionMilitarJson.getString("sistemaDeArmas");
+            cantidadBalas = avionMilitarJson.getInt("cantidadBalas");
+
+            try {
+                SistemaDeArmas sistemaDeArmas = SistemaDeArmas.valueOf(sistemaDeArmasString); // Se convierte el string a un enum
+                aeropuertoLeido.agregarAvion(new AvionMilitar(nombreModelo, marca, capacidadCombustible, TipoMotor.valueOf(tipoMotorString), cantidadAsientos, sistemaDeArmas, cantidadBalas));
+            } catch (LimiteDeAvionesSuperadoException e) {
+                System.out.println(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error al procesar el sistema de armas o tipo de motor: " + e.getMessage());
+            }
+        }
+
+        JSONArray hangarAvionesPrivados = aeropuertoJson.getJSONArray("avionesPrivados");
+
+        boolean jaccuzzi;
+        String claveWifi;
+
+        for (int i = 0; i < hangarAvionesPrivados.length(); i++) {
+            JSONObject avionPrivadoJson = hangarAvionesPrivados.getJSONObject(i);
+            nombreModelo = avionPrivadoJson.getString("nombreModelo");
+            marca = avionPrivadoJson.getString("marca");
+            capacidadCombustible = avionPrivadoJson.getDouble("capacidadCombustible");
+            tipoMotorString = avionPrivadoJson.getString("tipoMotor");
+            cantidadAsientos = avionPrivadoJson.getInt("cantidadAsientos");
+            jaccuzzi = avionPrivadoJson.getBoolean("jaccuzzi");
+            claveWifi = avionPrivadoJson.getString("claveWifi");
+
+            try {
+                aeropuertoLeido.agregarAvion(new AvionPrivado(nombreModelo, marca, capacidadCombustible, TipoMotor.valueOf(tipoMotorString), cantidadAsientos, jaccuzzi, claveWifi));
+            } catch (LimiteDeAvionesSuperadoException e) {
+                System.out.println(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error al procesar el tipo de motor: " + e.getMessage());
+            }
+        }
+
+        return aeropuertoLeido;
+    }
+
+
+
 }

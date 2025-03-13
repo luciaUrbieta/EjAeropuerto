@@ -1,6 +1,4 @@
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,14 +38,20 @@ public class Hangar<T extends Avion> {
         return aviones.isEmpty();
     }
 
-    public JSONObject toJSON() {
-        JSONObject aeropuerto = new JSONObject();
-        try {
-            aeropuerto.put("aviones", this.aviones);
-        } catch (JSONException e) {
-            System.out.println(e.getMessage());
+    public T obtenerPorIndice(int index){
+        return aviones.get(index);
+    }
+
+    public int size(){
+        return aviones.size();
+    }
+
+    public JSONArray toJson(){
+        JSONArray hangarJson = new JSONArray();
+        for(T avion : aviones){
+            hangarJson.put(avion.toJson());
         }
-        return aeropuerto;
+        return hangarJson;
     }
 
     public String toString(){
@@ -59,5 +63,18 @@ public class Hangar<T extends Avion> {
         }
         return string.toString();
     }
+
+    //CREO QUE ES MEJOR HACER UN JSONArray
+    /*
+    public JSONObject toJson() {
+        JSONObject avionesJson = new JSONObject();
+        try {
+            avionesJson.put("aviones", this.aviones);
+        } catch (JSONException e) {
+            System.out.println(e.getMessage());
+        }
+        return avionesJson;
+    }
+    */
 
 }

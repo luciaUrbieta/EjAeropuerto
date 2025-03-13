@@ -36,7 +36,7 @@ public class AvionMilitar extends Avion implements AccesoRestringido{
     }
 
     @Override
-    public JSONObject toJSON(){
+    public JSONObject toJson(){
         JSONObject avionMilitar = new JSONObject();
         try{
             avionMilitar.put("nombreModelo", getNombreModelo());

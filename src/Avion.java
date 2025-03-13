@@ -72,7 +72,7 @@ public abstract class Avion {
         return "Aterrizando...";
     }
 
-    public JSONObject toJSON(){
+    public JSONObject toJson(){
         JSONObject avion = new JSONObject();
         try{
             avion.put("nombreModelo", this.nombreModelo);
